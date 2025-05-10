@@ -65,13 +65,32 @@ class _AccountListScreenState extends State<AccountListScreen> {
         itemCount: _accounts.length,
         itemBuilder: (context, index) {
           final account = _accounts[index];
-          return Card(
-            child: ListTile(
-              title: Text('${account.userName} - ${account.bankName}'),
-              subtitle: Text(
-                '口座番号: ${account.accountNumber}\n支店: ${account.branchName} (${account.branchNumber})',
+          return Dismissible(
+            key: Key(account.accountNumber + account.userName),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            onDismissed: (direction) {
+              setState(() {
+                _accounts.removeAt(index);
+              });
+              _saveAccounts();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${account.bankName}　の口座を削除しました')),
+              );
+            },
+            child: Card(
+              child: ListTile(
+                title: Text('${account.userName} - ${account.bankName}'),
+                subtitle: Text(
+                  '口座番号: ${account.accountNumber}\n支店: ${account.branchName} (${account.branchNumber})',
+                ),
+                isThreeLine: true,
               ),
-              isThreeLine: true,
             ),
           );
         },
