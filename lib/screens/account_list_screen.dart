@@ -90,6 +90,24 @@ class _AccountListScreenState extends State<AccountListScreen> {
                   '口座番号: ${account.accountNumber}\n支店: ${account.branchName} (${account.branchNumber})',
                 ),
                 isThreeLine: true,
+                onTap: () async {
+                  final updatedAccount = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => AccountFromScreen(
+                            onAdd: (updated) {},
+                            initialAccount: account,
+                          ),
+                    ),
+                  );
+                  if (updatedAccount != null) {
+                    setState(() {
+                      _accounts[index] = updatedAccount;
+                    });
+                    _saveAccounts();
+                  }
+                },
               ),
             ),
           );
