@@ -39,6 +39,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   shared_preferences: ^2.1.0
+  csv: ^6.0.0
+  path_provider: ^2.1.5
+  share_plus: ^7.0.0
+  file_picker: ^6.1.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
