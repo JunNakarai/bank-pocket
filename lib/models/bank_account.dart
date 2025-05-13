@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class BankAccount {
   String userName;
   String bankName;
@@ -11,6 +9,21 @@ class BankAccount {
   bool isAutoWithdrawal;
   String linkedApp;
   String memo;
+
+  List<String> toCsvRow() {
+    return [
+      userName,
+      bankName,
+      branchName,
+      branchNumber,
+      accountNumber,
+      isSalary.toString(),
+      hasCreditCard.toString(),
+      isAutoWithdrawal.toString(),
+      linkedApp,
+      memo,
+    ];
+  }
 
   BankAccount({
     required this.userName,
@@ -26,28 +39,27 @@ class BankAccount {
   });
 
   Map<String, dynamic> toJson() => {
-        'userName': userName,
-        'bankName': bankName,
-        'branchName': branchName,
-        'branchNumber': branchNumber,
-        'accountNumber': accountNumber,
-        'isSalary': isSalary,
-        'hasCreditCard': hasCreditCard,
-        'isAutoWithdrawal': isAutoWithdrawal,
-        'linkedApp': linkedApp,
-        'memo': memo,
-      };
-      factory BankAccount.fromJson(Map<String, dynamic> json) 
-      => BankAccount(
-        userName: json['userName'],
-        bankName: json['bankName'],
-        branchName: json['branchName'],
-        branchNumber: json['branchNumber'],
-        accountNumber: json['accountNumber'],
-        isSalary: json['isSalary'] ?? false,
-        hasCreditCard: json['hasCreditCard'] ?? false,
-        isAutoWithdrawal: json['isAutoWithdrawal'] ?? false,
-        linkedApp: json['linkedApp'] ?? '',
-        memo: json['memo'] ?? '',
-      );
+    'userName': userName,
+    'bankName': bankName,
+    'branchName': branchName,
+    'branchNumber': branchNumber,
+    'accountNumber': accountNumber,
+    'isSalary': isSalary,
+    'hasCreditCard': hasCreditCard,
+    'isAutoWithdrawal': isAutoWithdrawal,
+    'linkedApp': linkedApp,
+    'memo': memo,
+  };
+  factory BankAccount.fromJson(Map<String, dynamic> json) => BankAccount(
+    userName: json['userName'],
+    bankName: json['bankName'],
+    branchName: json['branchName'],
+    branchNumber: json['branchNumber'],
+    accountNumber: json['accountNumber'],
+    isSalary: json['isSalary'] ?? false,
+    hasCreditCard: json['hasCreditCard'] ?? false,
+    isAutoWithdrawal: json['isAutoWithdrawal'] ?? false,
+    linkedApp: json['linkedApp'] ?? '',
+    memo: json['memo'] ?? '',
+  );
 }
