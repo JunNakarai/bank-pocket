@@ -9,6 +9,7 @@ class BankAccount {
   bool isAutoWithdrawal;
   String linkedApp;
   String memo;
+  Map<String, String> customFields = {};
 
   List<String> toCsvRow() {
     return [
@@ -36,6 +37,7 @@ class BankAccount {
     this.isAutoWithdrawal = false,
     this.linkedApp = '',
     this.memo = '',
+    this.customFields = const {},
   });
 
   Map<String, dynamic> toJson() => {
@@ -49,6 +51,7 @@ class BankAccount {
     'isAutoWithdrawal': isAutoWithdrawal,
     'linkedApp': linkedApp,
     'memo': memo,
+    'customFields': customFields,
   };
   factory BankAccount.fromJson(Map<String, dynamic> json) => BankAccount(
     userName: json['userName'],
@@ -61,5 +64,6 @@ class BankAccount {
     isAutoWithdrawal: json['isAutoWithdrawal'] ?? false,
     linkedApp: json['linkedApp'] ?? '',
     memo: json['memo'] ?? '',
+    customFields: json['customFields'] ?? const {},
   );
 }

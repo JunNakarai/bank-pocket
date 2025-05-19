@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/bank_account.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountFromScreen extends StatefulWidget {
   final void Function(BankAccount) onAdd;
@@ -25,6 +26,8 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
   final _accountNumberController = TextEditingController();
   final _linkedAppController = TextEditingController();
   final _memoController = TextEditingController();
+  final Map<String, TextEditingController> _customFieldControllers = {};
+  List<String> _customFieldNames = [];
 
   bool _isSalary = false;
   bool _hasCreditCard = false;
@@ -33,6 +36,7 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
   @override
   void initState() {
     super.initState();
+    _loadCustomFieldNames();
     final a = widget.initialAccount;
     if (a != null) {
       _userNameController.text = a.userName;
@@ -58,8 +62,13 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
     _memoController.dispose();
     super.dispose();
   }
+
   void _submit() {
-    if (_formKey.currentState!.validate()){
+    if (_formKey.currentState!.validate()) {
+      final customFields = {
+        for (final entry in _customFieldControllers.entries)
+          entry.key: entry.value.text,
+      };
       final account = BankAccount(
         userName: _userNameController.text,
         bankName: _bankNameController.text,
@@ -71,6 +80,7 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
         isAutoWithdrawal: _isAutoWithdrawal,
         linkedApp: _linkedAppController.text,
         memo: _memoController.text,
+        customFields: customFields,
       );
       if (widget.initialAccount != null) {
         Navigator.pop(context, account);
@@ -78,8 +88,18 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
         widget.onAdd(account);
         Navigator.pop(context);
       }
-    
     }
+  }
+
+  Future<void> _loadCustomFieldNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('customFields') ?? [];
+    setState(() {
+      _customFieldNames = saved;
+      for (final name in _customFieldNames) {
+        _customFieldControllers[name] = TextEditingController();
+      }
+    });
   }
 
   @override
@@ -139,6 +159,15 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
                 controller: _memoController,
                 decoration: const InputDecoration(labelText: 'メモ'),
               ),
+              ..._customFieldNames.map((fieldName) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: TextFormField(
+                    controller: _customFieldControllers[fieldName],
+                    decoration: InputDecoration(labelText: fieldName),
+                  ),
+                );
+              }).toList(),
               const SizedBox(height: 16),
               ElevatedButton(onPressed: _submit, child: const Text('追加する')),
             ],
