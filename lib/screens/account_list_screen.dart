@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/bank_account.dart';
 import 'account_from_screen.dart'; // ← フォーム画面をインポート
-
+import 'custom_field_settings_screen.dart';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
@@ -46,6 +46,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
                 isAutoWithdrawal: row[7] == 'true',
                 linkedApp: row[8],
                 memo: row[9],
+                customFields: {},
               );
             }).toList();
 
@@ -155,12 +156,26 @@ class _AccountListScreenState extends State<AccountListScreen> {
     _loadAccounts();
   }
 
+  void _navigateToSettingsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CustomFieldSettingsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('口座一覧'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _navigateToSettingsScreen,
+            tooltip: '設定',
+          ),
           IconButton(
             icon: const Icon(Icons.upload),
             onPressed: _importFromCsv,
