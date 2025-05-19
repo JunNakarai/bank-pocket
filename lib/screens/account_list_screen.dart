@@ -197,7 +197,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
             },
             child: Card(
               child: ListTile(
-                title: Text('${account.userName} - ${account.bankName}'),
+                title: Text(account.bankName),
                 subtitle: Text(
                   '口座番号: ${account.accountNumber}\n支店: ${account.branchName} (${account.branchNumber})',
                 ),
