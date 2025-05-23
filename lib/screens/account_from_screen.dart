@@ -107,16 +107,11 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Add Account')),
       body: Padding(
-   padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: _userNameController,
-                decoration: const InputDecoration(labelText: 'ユーザー名'),
-                validator: (v) => v!.isEmpty ? '必須項目です' : null,
-              ),
               TextFormField(
                 controller: _bankNameController,
                 decoration: const InputDecoration(labelText: '銀行名'),
