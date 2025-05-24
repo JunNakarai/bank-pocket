@@ -21,16 +21,6 @@ class _CustomFieldSettingsScreenState extends State<CustomFieldSettingsScreen> {
   Future<void> _loadCustomFields() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getStringList('customFields') ?? [];
-    final defaultFields = ['連携アプリ', 'メモ'];
-
-    if (saved == null || saved.isEmpty) {
-      await prefs.setStringList('customFields', defaultFields);
-      setState(() {
-        _customFields.clear();
-        _customFields.addAll(defaultFields);
-      });
-      return;
-    }
 
     setState(() {
       _customFields.clear();
