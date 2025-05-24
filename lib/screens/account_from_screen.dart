@@ -124,10 +124,12 @@ class _AccountFromScreenState extends State<AccountFromScreen> {
               TextFormField(
                 controller: _branchNumberController,
                 decoration: const InputDecoration(labelText: '支店番号'),
+                keyboardType: TextInputType.number,
               ),
               TextFormField(
                 controller: _accountNumberController,
                 decoration: const InputDecoration(labelText: '口座番号'),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 8),
               CheckboxListTile(
