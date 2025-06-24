@@ -29,11 +29,64 @@ jobs:
         with:
           fetch-depth: 1
       
+      # GitHub のコンテキスト情報を準備
+      - name: Prepare GitHub context
+        id: context
+        run: |
+          echo "event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event_name }}" == "issues" ]]; then
+            echo "issue_title<<EOF" >> $GITHUB_OUTPUT
+            echo "${{ github.event.issue.title }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "issue_body<<EOF" >> $GITHUB_OUTPUT
+            echo "${{ github.event.issue.body }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "issue_number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            echo "comment_body<<EOF" >> $GITHUB_OUTPUT
+            echo "${{ github.event.comment.body }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "issue_title<<EOF" >> $GITHUB_OUTPUT
+            echo "${{ github.event.issue.title }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "issue_number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Run Claude Code
         id: claude
         uses: grll/claude-code-base-action@beta
         with:
-          prompt: "GitHubのissueやPRコメントの要求にお手伝いください。これはBankPocketプロジェクト（銀行口座管理アプリ）です。回答は必ず日本語で行ってください。技術的な内容でも、日本語で分かりやすく説明してください。"
+          prompt: |
+            あなたはBankPocketプロジェクト（銀行口座管理Flutterアプリ）の開発支援AIです。
+            必ず日本語で回答してください。
+            
+            以下のGitHubイベントに対応してください：
+            
+            イベント種類: ${{ steps.context.outputs.event_name }}
+            
+            ${{ github.event_name == 'issues' && format('
+            ## Issue情報
+            - Issue番号: #{0}
+            - タイトル: {1}
+            - 内容:
+            {2}
+            
+            このissueの内容を分析し、具体的なアドバイスや解決策を提案してください。', github.event.issue.number, github.event.issue.title, github.event.issue.body) || '' }}
+            
+            ${{ github.event_name == 'issue_comment' && format('
+            ## コメント情報
+            - Issue番号: #{0}
+            - Issue タイトル: {1}
+            - コメント内容:
+            {2}
+            
+            このコメントの要求に対して具体的に回答してください。', github.event.issue.number, github.event.issue.title, github.event.comment.body) || '' }}
+            
+            回答時の注意事項:
+            - 技術的な内容は日本語で分かりやすく説明
+            - 具体的で実行可能な提案をする
+            - 必要に応じてコードやファイルを確認・提案
+            - プロジェクトの文脈を理解して回答
           allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool,Edit,Replace"
           model: "claude-3-7-sonnet-20250219"
           use_oauth: "true"
