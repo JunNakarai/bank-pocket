@@ -33,7 +33,7 @@ jobs:
         id: claude
         uses: grll/claude-code-base-action@beta
         with:
-          prompt: "Please help with the request in this GitHub issue or PR comment. This is a BankPocket project - a financial application."
+          prompt: "GitHubのissueやPRコメントの要求にお手伝いください。これはBankPocketプロジェクト（銀行口座管理アプリ）です。回答は必ず日本語で行ってください。技術的な内容でも、日本語で分かりやすく説明してください。"
           allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool,Edit,Replace"
           model: "claude-3-7-sonnet-20250219"
           use_oauth: "true"
