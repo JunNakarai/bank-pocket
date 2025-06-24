@@ -35,6 +35,7 @@ jobs:
         with:
           prompt: "Please help with the request in this GitHub issue or PR comment. This is a BankPocket project - a financial application."
           allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool,Edit,Replace"
+          model: "claude-3-7-sonnet-20250219"
           use_oauth: "true"
           claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
           claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
