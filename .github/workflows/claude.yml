@@ -87,7 +87,7 @@ jobs:
             - 具体的で実行可能な提案をする
             - 必要に応じてコードやファイルを確認・提案
             - プロジェクトの文脈を理解して回答
-          allowed_tools: "Bash,View,GlobTool,GrepTool,BatchTool,Edit,Replace,Write"
+          allowed_tools: "Bash,View,GlobTool,GrepTool,BatchTool,Edit,Replace,Write,GitHubAPI"
           model: "claude-3-7-sonnet-20250219"
           use_oauth: "true"
           claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
