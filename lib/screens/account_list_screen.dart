@@ -20,8 +20,18 @@ class AccountListScreen extends StatefulWidget {
 
 class _AccountListScreenState extends State<AccountListScreen> {
   final List<BankAccount> _accounts = [];
+  // 無料版の口座数上限
+  final int _freeAccountLimit = 3;
 
   Future<void> _importFromCsv() async {
+    // CSVインポート時の口座数チェック
+    final remainingSlots = _freeAccountLimit - _accounts.length;
+    
+    if (remainingSlots <= 0) {
+      _showAccountLimitDialog();
+      return;
+    }
+    
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -50,9 +60,37 @@ class _AccountListScreenState extends State<AccountListScreen> {
               );
             }).toList();
 
-        setState(() {
-          _accounts.addAll(importedAccounts);
-        });
+        // 無料版の上限を超えないようにインポート
+        final availableSlots = _freeAccountLimit - _accounts.length;
+        
+        if (importedAccounts.length > availableSlots) {
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('口座数制限'),
+                  content: Text('無料版では最大3口座までしか登録できません。\n${importedAccounts.length}件中${availableSlots}件のみインポートします。'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+          
+          setState(() {
+            _accounts.addAll(importedAccounts.take(availableSlots));
+          });
+        } else {
+          setState(() {
+            _accounts.addAll(importedAccounts);
+          });
+        }
+        
         _saveAccounts();
 
         if (context.mounted) {
@@ -142,11 +180,35 @@ class _AccountListScreenState extends State<AccountListScreen> {
   }
 
   void _navigateToAddScreen() {
+    // 無料版の口座制限（3口座まで）
+    if (_accounts.length >= _freeAccountLimit) {
+      _showAccountLimitDialog();
+      return;
+    }
+    
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AccountFromScreen(onAdd: _addAccount),
       ),
+    );
+  }
+  
+  void _showAccountLimitDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('口座数制限'),
+          content: const Text('無料版では最大3口座までしか登録できません。'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('閉じる'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -188,57 +250,77 @@ class _AccountListScreenState extends State<AccountListScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _accounts.length,
-        itemBuilder: (context, index) {
-          final account = _accounts[index];
-          return Dismissible(
-            key: Key(account.accountNumber + account.userName),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            onDismissed: (direction) {
-              setState(() {
-                _accounts.removeAt(index);
-              });
-              _saveAccounts();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${account.bankName}　の口座を削除しました')),
-              );
-            },
-            child: Card(
-              child: ListTile(
-                title: Text(account.bankName),
-                subtitle: Text(
-                  '口座番号: ${account.accountNumber}\n支店: ${account.branchName} (${account.branchNumber})',
+      body: Column(
+        children: [
+          // 登録口座数の表示
+          Container(
+            padding: const EdgeInsets.all(8),
+            color: Colors.grey[200],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '登録口座数: ${_accounts.length}/$_freeAccountLimit',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                isThreeLine: true,
-                onTap: () async {
-                  final updatedAccount = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => AccountFromScreen(
-                            onAdd: (updated) {},
-                            initialAccount: account,
-                          ),
-                    ),
-                  );
-                  if (updatedAccount != null) {
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _accounts.length,
+              itemBuilder: (context, index) {
+                final account = _accounts[index];
+                return Dismissible(
+                  key: Key(account.accountNumber + account.userName),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
                     setState(() {
-                      _accounts[index] = updatedAccount;
+                      _accounts.removeAt(index);
                     });
                     _saveAccounts();
-                  }
-                },
-              ),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${account.bankName}　の口座を削除しました')),
+                    );
+                  },
+                  child: Card(
+                    child: ListTile(
+                      title: Text(account.bankName),
+                      subtitle: Text(
+                        '口座番号: ${account.accountNumber}\n支店: ${account.branchName} (${account.branchNumber})',
+                      ),
+                      isThreeLine: true,
+                      onTap: () async {
+                        final updatedAccount = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => AccountFromScreen(
+                                  onAdd: (updated) {},
+                                  initialAccount: account,
+                                ),
+                          ),
+                        );
+                        if (updatedAccount != null) {
+                          setState(() {
+                            _accounts[index] = updatedAccount;
+                          });
+                          _saveAccounts();
+                        }
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddScreen,
