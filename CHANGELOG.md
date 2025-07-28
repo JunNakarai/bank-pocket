@@ -7,10 +7,13 @@
 
 ## [未リリース]
 
+## [1.0.1] - 2025-07-28
+
 ### 追加
 - GitHub ActionsによるClaude AI開発支援システムの統合
   - issue、PR、コメントに対する自動応答機能
   - 日本語での開発サポート
+  - Claude Code GitHub Workflowの追加
 
 ## [1.0.0] - 2025-06-24
 
